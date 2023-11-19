@@ -48,7 +48,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: name/app
+          images: mrasheduzzaman/rust-service
           tags: latest
 
       - name: Build and push
