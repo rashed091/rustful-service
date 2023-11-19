@@ -1,11 +1,5 @@
 name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_reruest:
-    branches: [main]
-
+on: [push]
 jobs:
   audit:
     runs-on: ubuntu-latest
