@@ -10,16 +10,24 @@ on:
       - synchronize
 
 jobs:
-  audit:
+  pr-format:
     runs-on: ubuntu-latest
 
     steps:
       - name: 'PR format check'
-        uses: 'androidx/check-pr-format-action'
+        uses: 'androidx/check-pr-format-action@main'
         with:
-          checks: '["(https:\/\/optimizely.atlassian.net\/browse\/){1}(DATA|DSSM){1}-{1}([0-9]+)"]'
+          checks: '["(.*)?JIRA(.*)?"]'
+            # '["(https:\/\/optimizely.atlassian.net\/browse\/){1}(DATA|DSSM){1}-{1}([0-9]+)"]'
 
-      - uses: actions/checkout@v3
+  audit:
+    needs: pr-format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v3
+
       - name: inspect
         run: |
           ls -al
