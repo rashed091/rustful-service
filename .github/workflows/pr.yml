@@ -1,0 +1,13 @@
+name: PR format
+
+on: [pull_request]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'PR format check'
+        uses: 'androidx/check-pr-format-action'
+        with:
+          checks: '["(https:\/\/optimizely.atlassian.net\/browse\/){1}(DATA|DSSM){1}-{1}([0-9]+)"]'
