@@ -1,10 +1,24 @@
 name: CI
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
+
 jobs:
   audit:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 'PR format check'
+        uses: 'androidx/check-pr-format-action'
+        with:
+          checks: '["(https:\/\/optimizely.atlassian.net\/browse\/){1}(DATA|DSSM){1}-{1}([0-9]+)"]'
+
       - uses: actions/checkout@v3
       - name: inspect
         run: |
