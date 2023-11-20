@@ -1,13 +1,8 @@
 use diesel::r2d2::{self, ConnectionManager, PooledConnection};
 use once_cell::sync::OnceCell;
 
-#[cfg(feature = "database_postgres")]
-type DbCon = diesel::PgConnection;
-
-#[cfg(all(feature = "database_postgres", debug_assertions))]
-#[allow(dead_code)]
+pub type DbCon = diesel::PgConnection;
 pub type DieselBackend = diesel::pg::Pg;
-
 
 pub type Pool = r2d2::Pool<ConnectionManager<DbCon>>;
 pub type Connection = PooledConnection<ConnectionManager<DbCon>>;
@@ -36,9 +31,6 @@ impl Database {
     }
 
     fn get_or_init_pool() -> &'static Pool {
-        #[cfg(debug_assertions)]
-        crate::load_env_vars();
-
         static POOL: OnceCell<Pool> = OnceCell::new();
 
         POOL.get_or_init(|| {
