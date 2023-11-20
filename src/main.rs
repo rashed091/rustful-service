@@ -1,4 +1,13 @@
+mod common;
+mod controllers;
+mod models;
+mod services;
+mod schema;
+
+use controllers::user_controller;
+use dotenv::dotenv;
 use salvo::prelude::*;
+use std::env;
 
 #[handler]
 async fn hello() -> &'static str {
@@ -7,9 +16,19 @@ async fn hello() -> &'static str {
 
 #[tokio::main]
 async fn main() {
+    env::set_var("RUST_LOG", "debug");
     tracing_subscriber::fmt().init();
 
-    let router = Router::new().get(hello);
-    let acceptor = TcpListener::new("127.0.0.1:5001").bind().await;
+    dotenv().ok();
+
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let host = env::var("HOST").expect("HOST is not set in .env file");
+    let port = env::var("PORT").expect("PORT is not set in .env file");
+    let server_url = format!("{host}:{port}");
+
+    let router = Router::new()
+        .get(user_controller::all_users);
+    let acceptor = TcpListener::new(server_url).bind().await;
+
     Server::new(acceptor).serve(router).await;
 }
