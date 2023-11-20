@@ -1,7 +1,7 @@
 ## Overview
-Here, we're going to set up a rust based demo application that exposes a dead-simple CRUD interface (RESTfull APIs) to an underlying database.
+Reusable template for building REST Web Services in Rust. Uses Salvo HTTP web framework and Diesel orm framework and PostgreSQL database.
 
-We will use Salvo HTTP server and stores data in postgres using Diesel orm framework. We can swap out the database very easily for others such as Mysql/SQLite by just changing a few lines of code and dependencies.
+We can swap out the database very easily for others such as Mysql/SQLite by just changing a few lines of code and dependencies.
  
 > What is Salvo?
 - Salvo is a Rust web framework for building scalable and blazingly-fast web applications. It is built on top of the Tokio framework.
@@ -188,3 +188,7 @@ APIs that are meant to be readable from different domains than the one the user 
 We're going to set up a very simple CORS implementation that just allows everyone to access everything from anywhere. You can tweak this to have a more fine-tuned setup by including any of the supported headers in responses instead of or in addition to the one we add here.
 
 Our CORS implementation is going to make use of Rocket's Fairings, which are like light-weight middlewares that can alter requests and responses in between them getting received/sent back.
+
+## How to use this template
+
+To use this template as your project starting point, click "Use this template" at the top of this page, or click [here](https://github.com/rashed091/rustful-service/generate).
