@@ -2,8 +2,6 @@ use diesel::r2d2::{self, ConnectionManager, PooledConnection};
 use once_cell::sync::OnceCell;
 
 pub type DbCon = diesel::PgConnection;
-pub type DieselBackend = diesel::pg::Pg;
-
 pub type Pool = r2d2::Pool<ConnectionManager<DbCon>>;
 pub type Connection = PooledConnection<ConnectionManager<DbCon>>;
 
