@@ -53,7 +53,7 @@ USER appuser
 RUN apt update && apt install -y openssl libpq-dev pkg-config
 
 # Copy the executable from the "build" stage.
-COPY --from=build /bin/server /bin/
+COPY --from=builder /bin/server /bin/
 
 # Expose the port that the application listens on.
 EXPOSE 5001
