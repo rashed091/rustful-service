@@ -1,9 +1,16 @@
 # Create a stage for building the application.
-ARG RUST_VERSION=1.73.0
-ARG APP_NAME="rust-service-template"
-FROM rust:${RUST_VERSION}-slim-bullseye AS build
+# version can be latest or specific like 1.73.0
+ARG RUST_VERSION=latest
+ARG APP_NAME="rustful"
+
+FROM rust:${RUST_VERSION} AS builder
+
 ARG APP_NAME
+
 WORKDIR /app
+
+# Install diesel CLI for migration
+RUN cargo install diesel_cli --no-default-features --features postgres
 
 # Build the application.
 # Leverage a cache mount to ~/.cargo/registry
@@ -43,6 +50,8 @@ RUN adduser \
     appuser
 USER appuser
 
+RUN apt update && apt install -y openssl libpq-dev pkg-config
+
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
 
@@ -50,4 +59,5 @@ COPY --from=build /bin/server /bin/
 EXPOSE 5001
 
 # What the container should run when it is started.
+# CMD ["bash", "-c", "./author diesel migration run && ./author"]
 CMD ["/bin/server"]
