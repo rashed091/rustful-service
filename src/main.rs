@@ -6,12 +6,20 @@ mod services;
 
 use controllers::user_controller;
 use dotenv::dotenv;
+use salvo::cors::Cors;
+use salvo::http::Method;
+use salvo::logging::Logger;
 use salvo::prelude::*;
 use std::env;
 
 #[handler]
 async fn health() -> &'static str {
     "I'm alive"
+}
+
+#[handler]
+async fn index() -> &'static str {
+    "Welcome to rustful-service"
 }
 
 
@@ -26,7 +34,13 @@ async fn main() {
     let port = env::var("PORT").expect("PORT is not set in .env file");
     let server_url = format!("{host}:{port}");
 
-    let router = Router::new()
+    let cors = Cors::new()
+        .allow_methods(vec![Method::GET, Method::POST, Method::DELETE])
+        .into_handler();
+
+
+    let router = Router::with_hoop(cors).hoop(Logger::new())
+        .get(index)
         .push(Router::with_path("/healthz").get(health))
         .push(Router::with_path("/users")
                 .get(user_controller::get_all_users)
