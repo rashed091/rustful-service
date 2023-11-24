@@ -232,3 +232,16 @@ make test
 **NB:** With `docker-compose` our migration would have to wait for postgres to initialize, either via a sleep or a `psql` "select 1" attempt. See `make compose` for more info.
 
 **NB:** The compile step is required before any build step, so `docker-compose up` would fail without it. It's possible to fix this by using a multistep docker build for the app, but it makes local build caching harder.
+
+
+**NB:** Sometime run command can give you address/port in use error compile. Please follow the steps below to resolve it:
+
+```bash
+#Find:
+netstat -vanp tcp | grep 5001
+lsof -i tcp:5001
+lsof -i :5001
+
+#Kill:
+kill -9 <PID>
+```
