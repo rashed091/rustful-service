@@ -4,7 +4,8 @@ mod models;
 mod schema;
 mod services;
 
-use controllers::user_controller;
+use controllers::fake;
+
 use dotenv::dotenv;
 use salvo::cors::Cors;
 use salvo::http::Method;
@@ -42,15 +43,8 @@ async fn main() {
     let router = Router::with_hoop(cors).hoop(Logger::new())
         .get(index)
         .push(Router::with_path("/healthz").get(health))
-        .push(Router::with_path("/users")
-                .get(user_controller::get_all_users)
-                .post(user_controller::create_user)
-                .delete(user_controller::delete_all_users)
-                .push(Router::with_path("<id>")
-                        .get(user_controller::get_user)
-                        .patch(user_controller::update_user)
-                        .delete(user_controller::delete_user)
-                    )
+        .push(Router::with_path("/fakes")
+                .get(fake::list)
             );
 
     let acceptor = TcpListener::new(server_url).bind().await;

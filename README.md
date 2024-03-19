@@ -72,7 +72,7 @@ cargo add diesel --features postgres
 Diesel provides a separate CLI tool to help manage your project. Since it’s a standalone binary, and doesn’t affect your project’s code directly, we don’t add it to Cargo.toml. Instead, we just install it on our system.
 
 ```bash
-cargo install diesel_cli
+cargo install diesel_cli --no-default-features --features postgres
 ```
 
 By default diesel CLI depends on the following client libraries:

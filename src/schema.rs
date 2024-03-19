@@ -1,9 +1,9 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    users (id) {
+    fakes (id) {
         id -> Uuid,
-        name -> Text,
-        age -> Int4,
+        created_at -> Timestamp,
+        message -> Text,
     }
 }
