@@ -1,8 +1,8 @@
-NAME=restful
-VERSION=$(shell git rev-parse HEAD)
-SEMVER_VERSION=$(shell grep version Cargo.toml | awk -F"\"" '{print $$2}' | head -n 1)
-REPO=mrasheduzzaman
 SHELL := /bin/bash
+NAME=$(shell rg --no-filename --color never 'name = .*' Cargo.toml | cut -d '"' -f 2)
+VERSION=$(shell git rev-parse HEAD)
+SEMVER_VERSION=$(shell grep version Cargo.toml | awk -F"\"" '{print $2}' | head -n 1)
+REPO=mrasheduzzaman
 
 no_postgres:
 	@[ -z "$$(docker ps -q -f ancestor="postgres:latest")" ] || (echo "db running"; exit 2)
@@ -39,5 +39,8 @@ build:
 	@ls -lah ./$(NAME)
 	docker build -t $(REPO)/$(NAME):$(VERSION) .
 
-tag-latest: build
+tag: build
 	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):latest
+
+push: tag
+	docker push $(REPO)/$(NAME):latest
