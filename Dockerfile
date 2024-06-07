@@ -2,6 +2,7 @@
 ARG RUST_VERSION=latest
 ARG APP_NAME="unknown"
 ARG PORT=5001
+
 # We only pay the installation cost once,
 # it will be cached from the second build onwards
 FROM rust:${RUST_VERSION} as chef
@@ -10,7 +11,7 @@ WORKDIR /app
 
 # Install diesel CLI for migration
 RUN cargo install diesel_cli --no-default-features --features postgres
-
+# Install cargo-chef for Docker layer caching
 RUN cargo install cargo-chef
 
 FROM chef as planner
@@ -20,13 +21,7 @@ COPY . .
 RUN cargo chef prepare  --recipe-path recipe.json
 
 
-# Build the application.
-# Leverage a cache mount to ~/.cargo/registry
-# for downloaded dependencies and a cache mount to /app/target/ for
-# compiled dependencies which will speed up subsequent builds.
-# Leverage a bind mount to the src directory to avoid having to copy the
-# source code into the container. Once built, copy the executable to an
-# output directory before the cache mounted /app/target is unmounted.
+# Build the application. Leverage a cache to which will speed up subsequent builds.
 FROM chef as builder
 
 COPY --from=planner /app/recipe.json recipe.json
@@ -46,8 +41,8 @@ FROM gcr.io/distroless/cc-debian12	as final
 
 WORKDIR /app
 
-# install required packges
-RUN apt update && apt install -y openssl libpq-dev pkg-config
+# install required packges (failing, distroless does not have a packges manager)
+# RUN apt update && apt install -y openssl libpq-dev pkg-config
 
 COPY --from=builder /app/.env /app/.env
 COPY --from=builder /app/target/release/${APP_NAME} /app/${APP_NAME}
