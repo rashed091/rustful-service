@@ -4,23 +4,24 @@ VERSION=$(shell git rev-parse HEAD)
 SEMVER_VERSION=$(shell grep version Cargo.toml | awk -F"\"" '{print $2}' | head -n 1)
 REPO=mrasheduzzaman
 PORT=$(shell rg --no-filename --color never 'PORT=*' .env | cut -d '=' -f 2)
+DB_CONTAINER_NAME=localdb
 
-no_postgres:
-	@[ -z "$$(docker ps -q -f ancestor="postgres:latest")" ] || (echo "db running"; exit 2)
-has_postgres:
-	@[ -n "$$(docker ps -q -f ancestor="postgres:latest")" ] || (echo "db not running"; exit 2)
 
-db:	no_postgres
-	@echo "Starting postgres container"
-	docker compose up -d db
-
-stop:
-	@docker ps -aq | xargs -r docker rm -f
-	@pkill $(NAME) || true
+.PHONY: is_running
 
 setup:
 	cargo install cargo-watch
 	cargo install diesel_cli --no-default-features --features postgres
+
+db:
+	@echo "Starting postgres container"
+	docker compose up -d db
+
+is_db_running:
+	@./check_container.sh $(DB_CONTAINER_NAME)
+
+stop:
+	docker container stop $(NAME)
 
 test:
 	./test.sh
@@ -28,7 +29,7 @@ test:
 compose:
 	docker compose up -d
 
-run: has_postgres
+run: is_db_running
 	cargo watch -q -c -w src/ -x run
 
 compile: has_postgres
