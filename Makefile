@@ -1,10 +1,9 @@
 SHELL := /bin/bash
-NAME=$(shell rg --no-filename --color never 'name = .*' Cargo.toml | cut -d '"' -f 2)
+DOCKER_HUB_REPO=mrasheduzzaman
+APP_NAME=$(shell rg --no-filename --color never 'name = .*' Cargo.toml | cut -d '"' -f 2)
 VERSION=$(shell git rev-parse HEAD)
-SEMVER_VERSION=$(shell grep version Cargo.toml | awk -F"\"" '{print $2}' | head -n 1)
-REPO=mrasheduzzaman
 PORT=$(shell rg --no-filename --color never 'PORT=*' .env | cut -d '=' -f 2)
-DB_CONTAINER_NAME=localdb
+DB_CONTAINER_NAME=$(shell rg --no-filename --color never 'DATABASE_CONTAINER_NAME=*' .env | cut -d '=' -f 2)
 
 
 .PHONY: is_running
@@ -21,7 +20,7 @@ is_db_running:
 	@./check_container.sh $(DB_CONTAINER_NAME)
 
 stop:
-	docker container stop $(NAME)
+	docker container stop $(APP_NAME)
 
 test:
 	./test.sh
@@ -37,38 +36,38 @@ compile: has_postgres
 
 build:
 	docker build \
-	--build-arg APP_NAME=$(NAME) \
+	--build-arg APP_NAME=$(APP_NAME) \
 	--build-arg PORT=$(PORT) \
-	--tag $(REPO)/$(NAME):$(VERSION) .
+	--tag $(DOCKER_HUB_REPO)/$(APP_NAME):$(VERSION) .
 
 tag: build
-	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):latest
+	docker tag $(DOCKER_HUB_REPO)/$(APP_NAME):$(VERSION) $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
 push: tag
-	docker push $(REPO)/$(NAME):latest
+	docker push $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
 multi:
 	docker buildx build \
-	--build-arg APP_NAME=$(NAME) \
+	--build-arg APP_NAME=$(APP_NAME) \
 	--build-arg PORT=$(PORT) \
 	--platform linux/amd64,linux/arm64 \
 	--output "type=image,push=true" \
-	--tag $(REPO)/$(NAME):latest --push .
+	--tag $(DOCKER_HUB_REPO)/$(APP_NAME):latest --push .
 
 testrun:
-	docker container run --name $(NAME) \
+	docker container run --name $(APP_NAME) \
 	--rm \
 	--publish $(PORT):$(PORT) \
-	--detach $(REPO)/$(NAME):latest
+	--detach $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
 logs:
 	docker container logs \
 	--follow \
 	--tail \
-	--timestamps $(NAME)
+	--timestamps $(APP_NAME)
 
 remove:
-	docker container rm --force --volumes $(NAME)
+	docker container rm --force --volumes $(APP_NAME)
 
 list:
 	docker container ls --all --no-trunc
