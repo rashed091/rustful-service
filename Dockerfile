@@ -7,7 +7,7 @@ ARG PORT=5001
 ######################################-Chef-##########################################
 # We only pay the installation cost once,
 # it will be cached from the second build onwards
-FROM rust:${RUST_VERSION}-slim as chef
+FROM rust:${RUST_VERSION} as chef
 
 WORKDIR /app
 
