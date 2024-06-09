@@ -12,9 +12,6 @@ DB_CONTAINER_NAME=$(rg --no-filename --color never 'DATABASE_CONTAINER_NAME=*' .
 GIT_REPOSITORY=$(basename `git rev-parse --show-toplevel`)
 GIT_BRANCH=$(git branch --show-current)
 GIT_COMMIT_SHA=$(git rev-parse HEAD)
-GITHUB_WORKFLOW="n/a"
-GITHUB_RUN_ID=0
-GITHUB_RUN_NUMBER=0
 GIT_TAG="latest"
 
 DOCKER_HUB_REPO=mrasheduzzaman
@@ -24,30 +21,22 @@ PLATFORMS="linux/amd64,linux/arm64"
 
 #Create a new builder instance
 #https://github.com/docker/buildx/blob/master/docs/reference/buildx_create.md
-docker buildx create --name multiarchcontainerrust --use
+docker buildx use multi-platform-builder
+
+docker buildx inspect --bootstrap
 
 #Start a build
 #https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md
+
 docker buildx build \
-    --tag $IMAGE_NAME \
-    --label "GITHUB_RUN_ID=$GITHUB_RUN_ID" \
-    --label "IMAGE_NAME=$IMAGE_NAME" \
-		--build-arg APP_NAME=$APP_NAME \
-		--build-arg PORT=$PORT \
-    --build-arg GIT_REPOSITORY=$GIT_REPOSITORY \
-    --build-arg GIT_BRANCH=$GIT_BRANCH \
-    --build-arg GIT_COMMIT=$GIT_COMMIT_SHA \
-    --build-arg GIT_TAG=$GIT_TAG \
-    --build-arg GITHUB_WORKFLOW=$GITHUB_WORKFLOW \
-    --build-arg GITHUB_RUN_ID=$GITHUB_RUN_ID \
-    --build-arg GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER \
-    --platform $PLATFORMS \
-		--push \
-    --output type=docker \
-    .
+  --label "GIT_BRANCH=$GIT_BRANCH" \
+  --label "IMAGE_NAME=$IMAGE_NAME" \
+  --label "IMAGE_VERSION=$GIT_COMMIT_SHA" \
+  --label "GIT_REPOSITORY=$GIT_REPOSITORY" \
+  --build-arg APP_NAME=$(APP_NAME) \
+  --build-arg PORT=$(PORT) \
+  --platform $PLATFORMS \
+  --output "type=image,push=true" \
+  --tag $IMAGE_NAME --push .
 
-#Preview matching images
-#https://docs.docker.com/engine/reference/commandline/images/
-docker images $GIT_REPOSITORY
-
-docker buildx stop multiarchcontainerrust
+docker buildx stop multi-platform-builder

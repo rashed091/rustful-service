@@ -56,9 +56,6 @@ tag: build
 push: tag
 	docker image push $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
-multi:
-	./build.sh
-
 testrun:
 	docker container run --name $(APP_NAME) \
 	--rm \
@@ -76,3 +73,6 @@ remove:
 
 list:
 	docker container ls --all
+
+multiplatform:
+	./build.sh
