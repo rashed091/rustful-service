@@ -11,7 +11,7 @@ setup:
 	cargo install cargo-watch
 	cargo install diesel_cli --no-default-features --features postgres
 
-up:
+detach:
 	@echo "Starting all services in detach mode"
 	docker compose up -d
 
