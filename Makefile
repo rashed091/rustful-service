@@ -5,7 +5,6 @@ VERSION=$(shell git rev-parse HEAD)
 PORT=$(shell rg --no-filename --color never 'PORT=*' .env | cut -d '=' -f 2)
 DB_CONTAINER_NAME=$(shell rg --no-filename --color never 'DATABASE_CONTAINER_NAME=*' .env | cut -d '=' -f 2)
 
-
 .PHONY: is_running
 
 setup:
@@ -47,12 +46,7 @@ push: tag
 	docker push $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
 multi:
-	docker buildx build \
-	--build-arg APP_NAME=$(APP_NAME) \
-	--build-arg PORT=$(PORT) \
-	--platform linux/amd64,linux/arm64 \
-	--output "type=image,push=true" \
-	--tag $(DOCKER_HUB_REPO)/$(APP_NAME):latest --push .
+	./build.sh
 
 testrun:
 	docker container run --name $(APP_NAME) \
