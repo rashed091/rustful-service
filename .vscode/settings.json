@@ -1,4 +1,5 @@
 {
 	"rust-analyzer.showUnlinkedFileNotification": false,
+	"rust-analyzer.cargo.autoreload": true,
 	"[rust]": {"editor.formatOnSave": true, "editor.defaultFormatter": "rust-lang.rust-analyzer"},
 }
