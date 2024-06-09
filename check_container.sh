@@ -10,12 +10,11 @@ if [ -z "$container_name" ]; then
 fi
 
 # Use docker ps to filter for the container and get its container ID
-container_id=$(docker ps -q --filter name=^/$(container_name)$ --filter status=running)
+container_id=$(docker ps -q --filter name=^/$container_name$ --filter status=running)
 
 # Check if the container ID is empty (meaning the container is not running)
 if [ -z "$container_id" ]; then
-  echo "$container_name is not running."
-  echo "Error: Please make sure $container_name is running."
+  echo "Error: $container_name is not running. Please make sure $container_name is running."
   exit 2
 else
   echo "$container_name is running."

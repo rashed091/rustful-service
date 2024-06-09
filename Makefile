@@ -11,7 +11,11 @@ setup:
 	cargo install cargo-watch
 	cargo install diesel_cli --no-default-features --features postgres
 
-db:
+services:
+	@echo "Starting all services"
+	docker compose up
+
+data:
 	@echo "Starting postgres container"
 	docker compose up -d db
 
@@ -30,20 +34,20 @@ compose:
 run: is_db_running
 	cargo watch -q -c -w src/ -x run
 
-compile: has_postgres
+compile: is_db_running
 		cargo build --release
 
 build:
-	docker build \
+	docker image build \
 	--build-arg APP_NAME=$(APP_NAME) \
 	--build-arg PORT=$(PORT) \
 	--tag $(DOCKER_HUB_REPO)/$(APP_NAME):$(VERSION) .
 
 tag: build
-	docker tag $(DOCKER_HUB_REPO)/$(APP_NAME):$(VERSION) $(DOCKER_HUB_REPO)/$(APP_NAME):latest
+	docker image tag $(DOCKER_HUB_REPO)/$(APP_NAME):$(VERSION) $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
 push: tag
-	docker push $(DOCKER_HUB_REPO)/$(APP_NAME):latest
+	docker image push $(DOCKER_HUB_REPO)/$(APP_NAME):latest
 
 multi:
 	./build.sh

@@ -1,7 +1,7 @@
 ######################################-Variables-##########################################
-# version can be latest or specific like 1.73.0
-ARG RUST_VERSION=latest
-ARG APP_NAME="unknown"
+# version can be latest or specific like 1.78.0-slim
+ARG RUST_VERSION="1.78.0-slim"
+ARG APP_NAME="rustful"
 ARG PORT=5001
 
 ######################################-Chef-##########################################
@@ -11,8 +11,7 @@ FROM rust:${RUST_VERSION} as chef
 
 WORKDIR /app
 
-RUN apt update && apt upgrade --no-install-recommends -y && \
-    apt install --no-install-recommends pkg-config libssl-dev libpq-dev -y
+RUN apt update && apt upgrade --no-install-recommends -y && apt install --no-install-recommends pkg-config libssl-dev libpq-dev -y
 
 # Install diesel CLI for migration
 RUN cargo install diesel_cli --no-default-features --features postgres
@@ -50,22 +49,11 @@ CMD ["diesel", "migration", "run"]
 # runtime dependencies for the application. This often uses a different base
 # image from the build stage where the necessary files are copied from the build
 # stage. We do not need the Rust toolchain to run the binary!
-FROM gcr.io/distroless/cc-debian12	as final
+FROM debian:stable-slim as final
 
 WORKDIR /app
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
-# ARG UID=10001
-# RUN adduser \
-#     --disabled-password \
-#     --gecos "" \
-#     --home "/nonexistent" \
-#     --shell "/sbin/nologin" \
-#     --no-create-home \
-#     --uid "${UID}" \
-#     appuser
-# USER appuser
+RUN apt update && apt upgrade --no-install-recommends -y && apt install libpq-dev -y
 
 COPY --from=builder /app/.env /app/.env
 COPY --from=builder /app/target/release/${APP_NAME} /app/${APP_NAME}
@@ -74,7 +62,6 @@ COPY --from=builder /app/target/release/${APP_NAME} /app/${APP_NAME}
 EXPOSE ${PORT}
 
 # What the container should run when it is started.
-# CMD ["bash", "-c", "./author diesel migration run && ./author"]
-CMD ["${APP_NAME}"]
+CMD ["./rustful"]
 
 #------------------------------------------End-----------------------------------------------

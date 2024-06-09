@@ -1,43 +1,57 @@
 name: rustful
 
+
 services:
-  db:
+  postgres:
     image: postgres:latest
-    container_name: ${DATABASE_CONTAINER_NAME}
+    container_name: ${DATABASE}
     restart: always
-    user: postgres
+    user: ${POSTGRES_USER}
     secrets:
-      - db-password
+      - postgres_password
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=demo
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     expose:
       - 5432
-    ports:
-      - 5432:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: [ "CMD", "pg_isready"]
+      start_period: 5s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migration:
+    build:
+      context: .
+      target: migration
+    container_name: ${MIGRATION_CONTAINER_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   backend:
-    image: mrasheduzzaman/rust-service:latest
+    build:
+      context: .
+      target: final
     container_name: ${BACKEND_CONTAINER_NAME}
     restart: always
     ports:
       - 5001:5001
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-        restart: true
-
+      migration:
+        condition: service_healthy
 
 
 volumes:
-  db-data:
+  postgres-data:
+
 
 secrets:
-  db-password:
+  postgres_password:
     file: db/pass.txt
