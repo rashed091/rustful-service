@@ -11,25 +11,28 @@ setup:
 	cargo install cargo-watch
 	cargo install diesel_cli --no-default-features --features postgres
 
-services:
+up:
 	@echo "Starting all services"
 	docker compose up
+
+down:
+	@echo "Down all services"
+	docker compose down
+
+stop:
+	@echo "Stop service named $(APP_NAME)"
+	docker container stop $(APP_NAME)
+
 
 data:
 	@echo "Starting postgres container"
 	docker compose up -d db
 
-is_db_running:
-	@./check_container.sh $(DB_CONTAINER_NAME)
-
-stop:
-	docker container stop $(APP_NAME)
-
 test:
 	./test.sh
 
-compose:
-	docker compose up -d
+is_db_running:
+	@./check_container.sh $(DB_CONTAINER_NAME)
 
 run: is_db_running
 	cargo watch -q -c -w src/ -x run
@@ -68,4 +71,4 @@ remove:
 	docker container rm --force --volumes $(APP_NAME)
 
 list:
-	docker container ls --all --no-trunc
+	docker container ls --all

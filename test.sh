@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ex
 
-res=$(curl -s -X POST http://127.0.0.1:5001/users -H "Content-Type: application/json" \
-  -d '{"name": "Rashed", "age": "27"}')
+res=$(curl -s -X GET http://127.0.0.1:5001/fakes -H "Content-Type: application/json" \
+  -d '{ "results": [] }')
 
 echo "${res}"
 
