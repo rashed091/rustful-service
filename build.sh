@@ -32,8 +32,8 @@ docker buildx build \
     --tag $IMAGE_NAME \
     --label "GITHUB_RUN_ID=$GITHUB_RUN_ID" \
     --label "IMAGE_NAME=$IMAGE_NAME" \
-		--build-arg APP_NAME=$(APP_NAME) \
-		--build-arg PORT=$(PORT) \
+		--build-arg APP_NAME=$APP_NAME \
+		--build-arg PORT=$PORT \
     --build-arg GIT_REPOSITORY=$GIT_REPOSITORY \
     --build-arg GIT_BRANCH=$GIT_BRANCH \
     --build-arg GIT_COMMIT=$GIT_COMMIT_SHA \
