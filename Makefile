@@ -3,13 +3,17 @@ DOCKER_HUB_REPO=mrasheduzzaman
 APP_NAME=$(shell rg --no-filename --color never 'name = .*' Cargo.toml | cut -d '"' -f 2)
 VERSION=$(shell git rev-parse HEAD)
 PORT=$(shell rg --no-filename --color never 'PORT=*' .env | cut -d '=' -f 2)
-DB_CONTAINER_NAME=$(shell rg --no-filename --color never 'DATABASE_CONTAINER_NAME=*' .env | cut -d '=' -f 2)
+DB_CONTAINER_NAME=$(shell rg --no-filename --color never 'DATABASE=*' .env | cut -d '=' -f 2)
 
 .PHONY: is_running
 
 setup:
 	cargo install cargo-watch
 	cargo install diesel_cli --no-default-features --features postgres
+
+compose:
+	@echo "Starting all services in detach mode"
+	docker compose up --build
 
 detach:
 	@echo "Starting all services in detach mode"
@@ -30,7 +34,7 @@ stop:
 
 data:
 	@echo "Starting postgres container"
-	docker compose up -d db
+	docker compose up -d postgres
 
 test:
 	./test.sh

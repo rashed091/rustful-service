@@ -240,11 +240,6 @@ You can develop and test production equivalents without rust, without local post
 This is the production equivalent flow:
 
 ```sh
-# Build the app with clux/muslrust
-make compile
-# Put the built binary into a container and compose with a db.
-# Then, once the db is up, use clux/diesel-cli to run migrations:
-source env.sh
 make compose
 # Verify
 make test
